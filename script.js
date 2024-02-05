@@ -3,29 +3,48 @@ btnSearch.addEventListener("keydown", (event) => keyPressed(event) )
 
 function keyPressed(event) {
      if (event.key === 'Enter') {
-        //get name movie
         const nameMovie = btnSearch.value
-        //getmovie with that name
         showMovie(nameMovie)
      }
 }
 
 async function searchMovie(nameMovie) {
-    const url = 'http://www.omdbapi.com/?apikey=5beb7ae3&t=' + nameMovie
+    const movieArray = nameMovie.split(' ');
+    // Join the substrings with the plus symbol
+    const movieWithPlus = movieArray.join('+');
+    const url = 'http://www.omdbapi.com/?apikey=5beb7ae3&t=' + movieWithPlus
     try {
         const response = await fetch(url)
         const result = await response.text()
-        return result
+        if(result.includes('"Response":"False"')) {
+            throw new Error(`Failed to fetch data`);
+        }
+        return ["OK", result] 
     } catch(error){
-        return error
+        return ["NOTOK", error]
     }
+    
 }
 
 showMovie()
 
-async function showMovie(nameMovie = "Berserk" ) {
-    const movie = await searchMovie(nameMovie)
-    handleData(movie)
+const divPosterMovie = document.querySelector(".div-poster-movie")
+const divInfoMovie = document.querySelector(".div-info-movie")
+const movieNotFound = document.querySelector(".movie-not-found")
+
+async function showMovie(nameMovie = "Avatar:The" ) {
+    const [state, movie] = await searchMovie(nameMovie)
+
+    if(state == "OK") {
+        divPosterMovie.style.display = 'flex'
+        divInfoMovie.style.display = 'flex'
+        movieNotFound.style.display = 'none'
+        handleData(movie)
+    }  else {
+        divPosterMovie.style.display = 'none'
+        divInfoMovie.style.display = 'none'
+        movieNotFound.style.display = 'block'
+    } 
 }
 
 const posterImgMovie = document.getElementById("poster-movie")
@@ -46,7 +65,6 @@ function handleData(movie) {
     posterImgMovie.setAttribute("src", movieObject.Poster)
     titleMovie.innerHTML = movieObject.Title
     tagsMovie.innerHTML = ""
-    console.log(movieObject.Genre)
     const genres = movieObject.Genre.split(",")
     
     genres.map( genre => {
@@ -61,3 +79,4 @@ function handleData(movie) {
     votesMovie.innerHTML = movieObject.imdbVotes
 
 }
+
