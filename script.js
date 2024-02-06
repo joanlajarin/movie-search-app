@@ -12,7 +12,7 @@ async function searchMovie(nameMovie) {
     const movieArray = nameMovie.split(' ');
     // Join the substrings with the plus symbol
     const movieWithPlus = movieArray.join('+');
-    const url = 'http://www.omdbapi.com/?apikey=5beb7ae3&t=' + movieWithPlus
+    const url = 'http://www.omdbapi.com/?apikey=API_KEY&t=' + movieWithPlus
     try {
         const response = await fetch(url)
         const result = await response.text()
